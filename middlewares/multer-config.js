@@ -21,10 +21,6 @@ const sharpProcess = (req, res, next) => {
   const originalFilenameWithoutExtension = req.file.originalname.split('.')[0];
   const newFilename = `${originalFilenameWithoutExtension}_${Date.now()}.webp`;
 
-  console.log('Processing image with Sharp...');
-  console.log('Original filename:', req.file.originalname);
-  console.log('New filename:', newFilename);
-
   sharp(req.file.buffer) // On prends l'image dans le buffer
     .resize(206, 360)
     .toFormat('webp')
