@@ -51,7 +51,7 @@ exports.updateBook = (req, res) => {
   console.log('updateBook controller called')
   const bookObject = req.file ? {         // Si y a un fichier, on ajoute le fichier au reste du body (d'abord parse, puis on met imageUrl)   
     ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.newFilename}`
   } : {...req.body}                    // Sinon, on reprends le body, tel quel
   delete bookObject._userId           // On enlève le _userId de la requête, pour pas qu'il soit changé, par sécurité
 
