@@ -10,5 +10,6 @@ router.get('/:id', bookCtrl.getOneBook)
 router.post('/', auth, upload, sharpProcess, bookCtrl.addBook)
 router.put('/:id', auth, upload, sharpProcess, bookCtrl.updateBook)
 router.delete('/:id', auth, bookCtrl.deleteBook)
+router.post('/:id/rating', auth, bookCtrl.rateBook)
 
 module.exports = router

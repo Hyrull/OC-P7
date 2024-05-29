@@ -11,7 +11,6 @@ exports.getBooks = (req, res) => {
 
 // GET : Page spécifique de livre
 exports.getOneBook = (req, res) => {
-  console.log('getOneBook controller called')
   Book.findOne({ _id: req.params.id })
     .then(book => {
       if (!book) {
@@ -91,4 +90,29 @@ exports.deleteBook = (req, res) => {
       }
     })
     .catch((err) => res.status(500).json({err}))
+}
+
+
+// RATING
+exports.rateBook = (req, res) => {
+  const userRateId = req.auth.userId // On prends l'ID depuis le token, on sait jamais
+  const userRating = req.body.rating
+
+  Book.findOne({ _id: req.params.id })
+  .then (book => {
+
+    const existingRating = book.ratings.find(rating => rating.userId === userRateId)
+    if (existingRating) {return res.status(400).json({ error: 'Vous avez déjà noté ce livre !' })}
+
+    book.ratings.push({ userId: userRateId, grade: userRating }) // Ajout du rating
+
+    const totalRatings = book.ratings.length
+    const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0)
+    book.averageRating = sumRatings / totalRatings // Recalcul de la moyenne : totalRating = nb de rates, sumRatings = somme total des rates
+
+    book.save()
+      .then(() => res.status(200).json({ message: 'Rating added successfully', averageRating: book.averageRating }))
+      .catch(err => res.status(500).json({ error: 'Failed to save rating', details: err }))
+  })
+  .catch(err => res.status(500).json({ err }))
 }
