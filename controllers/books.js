@@ -1,6 +1,8 @@
 const fs = require('fs')
 const Book = require('../models/books')
 
+
+// GET : liste totale
 exports.getBooks = (req, res) => {
   console.log('getBooks controller called')
   const bookOne = [
@@ -20,4 +22,18 @@ exports.getBooks = (req, res) => {
   ]
 
     res.status(200).json(bookOne)
+}
+
+// GET : Page spécifique de livre
+exports.getOneBook = (req, res) => {
+  console.log('getOneBook controller called')
+  Book.findOne({ _id: req.params.id })
+    .then(book => {
+      if (!book) {
+        res.status(404).json({message: 'Book not found!'})
+      } else {
+        res.status(200).json(book)
+      }
+    })
+    .catch((err) => res.status(400).json({err}))
 }
