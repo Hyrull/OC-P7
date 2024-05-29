@@ -22,7 +22,7 @@ const sharpProcess = (req, res, next) => {
   const newFilename = `${originalFilenameWithoutExtension}_${Date.now()}.webp`;
 
   sharp(req.file.buffer) // On prends l'image dans le buffer
-    .resize(206, 360)
+    .resize(404, 568)
     .toFormat('webp')
     .toFile(`images/${newFilename}`, (err, info) => {
       if (err) {
