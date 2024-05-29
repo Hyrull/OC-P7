@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose');
 const bookRoutes = require('./routes/books')
 const userRoutes = require('./routes/user')
+const path = require('path')
 
 const app = express()
 
@@ -23,5 +24,6 @@ app.use((req, res, next) => {
 // Routes de tout ce qui est books (renvoie vers les routes dans le folder routes en vrai)
 app.use('/api/books', bookRoutes)
 app.use('/api/auth', userRoutes)
+app.use('/images', express.static(path.join(__dirname, 'images')))
 
 module.exports = app

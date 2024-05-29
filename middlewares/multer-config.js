@@ -1,24 +1,44 @@
-const multer = require('multer')
-const MIME_TYPES = {
-  'image/jpg': 'jpg',
-  'image/png': 'png',
-  'image/jpeg': 'jpeg',
-  'image/webp': 'webp'
-}
+const multer = require('multer');
+const sharp = require('sharp');
 
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, 'images')
-  },
-    filename: (req, file, callback) => {
-      // Remplacer les espaces par _
-      const name = file.originalname.split(' ').join('_')
-      const extension = MIME_TYPES[file.mimetype]
-      callback(null, name + Date.now() + '.' + extension)
-      console.log('Multer OK')
+
+const upload = multer({
+  storage: multer.memoryStorage(), 
+  filename: (req, file, callback) => {
+    // Espaces -> underscores
+    const name = file.originalname.split(' ').join('_')
+    callback(null, name + Date.now())
   }
-})
+}).single('image');
 
 
-// '.single' pour dire fichier unique
-module.exports = multer({ storage }).single('image')
+const sharpProcess = (req, res, next) => {
+  if (!req.file) {
+    return next(); // Aucune action si y a pas d'image
+  }
+
+  // Changement du nom (pour ajouter le date.now et ainsi éviter les doublons)
+  const originalFilenameWithoutExtension = req.file.originalname.split('.')[0];
+  const newFilename = `${originalFilenameWithoutExtension}_${Date.now()}.webp`;
+
+  console.log('Processing image with Sharp...');
+  console.log('Original filename:', req.file.originalname);
+  console.log('New filename:', newFilename);
+
+  sharp(req.file.buffer) // On prends l'image dans le buffer
+    .resize(206, 360)
+    .toFormat('webp')
+    .toFile(`images/${newFilename}`, (err, info) => {
+      if (err) {
+        console.error('Image processing error:', err)
+        return res.status(500).json({ error: 'Image processing failed' })
+      }
+
+      req.newFilename = newFilename
+      console.log('Image successfully processed and saved:', newFilename)
+      next()
+    })
+};
+
+
+module.exports = { upload, sharpProcess }

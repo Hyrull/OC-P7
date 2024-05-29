@@ -1,5 +1,5 @@
-const sharp = require('../middlewares/sharp')
 const Book = require('../models/books')
+const fs = require('fs')
 
 
 // GET : liste totale
@@ -30,18 +30,19 @@ exports.addBook = (req, res) => {
   delete bookObject._id;
   delete bookObject._userId;
 
-  // Create a Mongoose model instance
+  // On prépare l'objet (moongoose)
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: req.newFilename ? `${req.protocol}://${req.get('host')}/images/${req.newFilename}` : ''
   });
 
-  // Save the book
+  // On envoie le livre à la db
   book.save()
     .then(() => res.status(201).json({ message: 'Livre ajouté avec succès !' }))
     .catch(err => res.status(400).json({ err }));
 };
+
 
 
 
@@ -65,4 +66,29 @@ exports.updateBook = (req, res) => {
       }
     })
     .catch((err) => res.status(400).json({err}))
+}
+
+
+// Delete
+exports.deleteBook = (req, res) => {
+  Book.findOne({ _id: req.params.id })
+    .then(book => {
+      if (book.userId != req.auth.userId) {
+        res.status(401).json({message: 'Opération non autorisée'})
+      } else {
+        const filename = book.imageUrl.split('/images/')[1]
+        const imagePath = `images/${filename}`
+
+        fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.error('Erreur lors de la suppression de l\'image:', err);
+        } else { console.log('Suppression réussie')}
+
+          Book.deleteOne({_id: req.params.id})
+          .then(() => res.status(200).json({message: 'Livre supprimé'}))
+          .catch((err) => res.status(500).json(err))
+        })
+      }
+    })
+    .catch((err) => res.status(500).json({err}))
 }

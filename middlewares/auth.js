@@ -9,9 +9,9 @@ module.exports = (req, res, next) => {
     req.auth = {
       userId: userId
     }
+    console.log('Auth OK')
     next()
   } catch(error) {
     res.status(401).json({error})
   }
-  console.log('Auth OK')
 }
