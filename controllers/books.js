@@ -40,7 +40,7 @@ exports.addBook = (req, res) => {
   book.save()
     .then(() => res.status(201).json({ message: 'Livre ajouté avec succès !' }))
     .catch(err => res.status(400).json({ err }));
-};
+}
 
 
 
@@ -115,4 +115,13 @@ exports.rateBook = (req, res) => {
       .catch(err => res.status(500).json({ error: 'Failed to save rating', details: err }))
   })
   .catch(err => res.status(500).json({ err }))
+}
+
+
+exports.bestRatings = (req, res) => {
+  Book.find()
+  .sort({averageRating: -1})
+  .limit(3)
+  .then(bestRating => res.status(200).json(bestRating))
+  .catch(err => res.status(400).json({ err }))
 }
