@@ -1,7 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose');
-require('dotenv').config()
-
+const bookRoutes = require('./routes/books')
 const app = express()
 
 mongoose.connect('mongodb+srv://xavierleonard:eoXSiCttSSzgYiWv@cluster0.tkrluzl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
@@ -18,5 +17,8 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
   next()
 })
+
+// Routes de tout ce qui est books (renvoie vers les routes dans le folder routes en vrai)
+app.use('/api/books', bookRoutes)
 
 module.exports = app
