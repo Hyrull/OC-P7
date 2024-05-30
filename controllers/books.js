@@ -111,7 +111,10 @@ exports.rateBook = (req, res) => {
     book.averageRating = sumRatings / totalRatings // Recalcul de la moyenne : totalRating = nb de rates, sumRatings = somme total des rates
 
     book.save()
-      .then(() => res.status(200).json({ message: 'Rating added successfully', averageRating: book.averageRating }))
+      .then(() => {
+        console.log(book)
+       res.status(200).json( book )
+       })
       .catch(err => res.status(500).json({ error: 'Failed to save rating', details: err }))
   })
   .catch(err => res.status(500).json({ err }))

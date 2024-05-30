@@ -14,7 +14,7 @@ exports.signup = (req, res) => {
       // On l'envoie à la db
       user.save()
         .then(() => res.status(201).json({message: 'Utilisateur créé avec succès'}))
-        .catch((err) => res.status(500).json({err}))
+        .catch((err) => res.status(400).json({ message: 'Email déjà utilisé'}))
     })
     .catch((err) => res.status(500).json({err}))
 }
