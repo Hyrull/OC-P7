@@ -108,7 +108,11 @@ exports.rateBook = (req, res) => {
 
     const totalRatings = book.ratings.length
     const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0)
-    book.averageRating = sumRatings / totalRatings // Recalcul de la moyenne : totalRating = nb de rates, sumRatings = somme total des rates
+    if (totalRatings === 0) {
+      res.status(400).json({error: "Impossible de calculer la moyenne"}) // Eviter une division par zéro même si théoriquement ça n'arrive jamais
+    } else {
+      book.averageRating = sumRatings / totalRatings // Recalcul de la moyenne : totalRating = nb de rates, sumRatings = somme total des rates
+    }
 
     book.save()
       .then(() => {
