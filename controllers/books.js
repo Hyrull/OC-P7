@@ -64,7 +64,7 @@ exports.updateBook = (req, res) => {
   Book.findOne({_id: req.params.id})
     .then((book) => {
       if (book.userId != req.auth.userId) {      // Check que l'ID dans le token de l'user soit bien l'ID de l'item qu'on s'apprête à update
-        res.status(401).json({message: 'Non autorisé'}) 
+        res.status(403).json({message: 'Non autorisé'}) 
         } else {
         bookObject = book.ratings // On restaure le ratings original, pour pas que l'user force un nouvel array de ratings
         Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
@@ -81,7 +81,7 @@ exports.deleteBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then(book => {
       if (book.userId != req.auth.userId) {
-        res.status(401).json({message: 'Opération non autorisée'})
+        res.status(403).json({message: 'Opération non autorisée'})
       } else {
         const filename = book.imageUrl.split('/images/')[1]
         const imagePath = `images/${filename}`
@@ -126,7 +126,7 @@ exports.rateBook = (req, res) => {
       .then(() => {
        res.status(200).json( book )
        })
-      .catch(err => res.status(500).json({ error: 'Failed to save rating', details: err }))
+      .catch(err => res.status(400).json({ error: 'Failed to save rating', details: err }))
   })
   .catch(err => res.status(500).json({ err }))
 }
