@@ -111,12 +111,11 @@ exports.rateBook = (req, res) => {
     if (totalRatings === 0) {
       res.status(400).json({error: "Impossible de calculer la moyenne"}) // Eviter une division par zéro même si théoriquement ça n'arrive jamais
     } else {
-      book.averageRating = sumRatings / totalRatings // Recalcul de la moyenne : totalRating = nb de rates, sumRatings = somme total des rates
+      book.averageRating = (sumRatings / totalRatings).toFixed(2) // Recalcul de la moyenne : totalRating = nb de rates, sumRatings = somme total des rates
     }
 
     book.save()
       .then(() => {
-        console.log(book)
        res.status(200).json( book )
        })
       .catch(err => res.status(500).json({ error: 'Failed to save rating', details: err }))
