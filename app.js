@@ -1,3 +1,4 @@
+const dotenv = require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose');
 const bookRoutes = require('./routes/books')
@@ -6,7 +7,7 @@ const path = require('path')
 
 const app = express()
 
-mongoose.connect('mongodb+srv://xavierleonard:eoXSiCttSSzgYiWv@cluster0.tkrluzl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(process.env.MONGO_DB_LOGIN_STRING)
   .then(() => console.log('Connected to MongoDB!'))
   .catch((err) => console.log(`DB connection error:${err}`))
 

@@ -27,7 +27,13 @@ exports.getOneBook = (req, res) => {
 exports.addBook = (req, res) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
+
+  // On vire l'userId (pour reprendre celui du token après), averageRating s'il est forcé par l'user, 
   delete bookObject._userId;
+  delete bookObject.averageRating;
+  // et on vire tout rating qui n'est pas provenant du userId (pour ne pas push une array si forcé par l'user)
+  bookObject.ratings = bookObject.ratings.filter(rating => rating.userId === req.auth.userId);
+
 
   // On prépare l'objet (moongoose)
   const book = new Book({
@@ -53,12 +59,14 @@ exports.updateBook = (req, res) => {
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.newFilename}`
   } : {...req.body}                    // Sinon, on reprends le body, tel quel
   delete bookObject._userId           // On enlève le _userId de la requête, pour pas qu'il soit changé, par sécurité
+  delete bookObject.averageRating // Same pour l'averageRating
 
   Book.findOne({_id: req.params.id})
     .then((book) => {
-      if (book.userID != req.auth.userID) {      // Check que l'ID dans le token de l'user soit bien l'ID de l'item qu'on s'apprête à update
+      if (book.userId != req.auth.userId) {      // Check que l'ID dans le token de l'user soit bien l'ID de l'item qu'on s'apprête à update
         res.status(401).json({message: 'Non autorisé'}) 
-      } else {
+        } else {
+        bookObject = book.ratings // On restaure le ratings original, pour pas que l'user force un nouvel array de ratings
         Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
           .then(() => res.status(200).json({message:'Modification réussie'}))
           .catch((err) => res.status(400).json({err}))

@@ -36,7 +36,7 @@ exports.login = (req, res) => {
                 token: jwt.sign(
                   // Arguments: ID, clé d'encodage, expiration
                   {userId: user._id},
-                  'YLnk2s3QXurMsK!*#a', // clé d'encodage
+                  process.env.ACCOUNT_ENCODING_KEY, // clé d'encodage
                   {expiresIn: '72h'}
                 )
               })} 
