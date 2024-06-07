@@ -39,7 +39,7 @@ exports.addBook = (req, res) => {
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
-    imageUrl: req.newFilename ? `${req.protocol}://${req.get('host')}/images/${req.newFilename}` : ''
+    imageUrl: req.newFilename ? `/images/${req.newFilename}` : ''
   });
 
   // On envoie le livre à la db
