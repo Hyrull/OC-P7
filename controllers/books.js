@@ -112,6 +112,7 @@ exports.rateBook = (req, res) => {
     const existingRating = book.ratings.find(rating => rating.userId === userRateId)
     if (existingRating) {return res.status(400).json({ error: 'Vous avez déjà noté ce livre !' })}
 
+    if (userRateId < 1 || userRateId > 5) {res.status(403).json({error: "La note doit se situer entre 1 et 5."})} // Forcer la note entre 0 et 5
     book.ratings.push({ userId: userRateId, grade: userRating }) // Ajout du rating
 
     const totalRatings = book.ratings.length
