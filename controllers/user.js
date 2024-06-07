@@ -3,7 +3,12 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 
 exports.signup = (req, res) => {
-  // Hashing
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({ message: 'Le mot de passe doit faire au moins six caractères, dont au moins une majuscule et un chiffre.' })
+    }
+    
+    // Hashing
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
       // On prépare l'user (basé sur le model User)
