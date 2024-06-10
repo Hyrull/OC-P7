@@ -5,7 +5,20 @@ const fs = require('fs')
 // GET : liste totale
 exports.getBooks = (req, res) => {
   Book.find()
-    .then(books => res.status(200).json(books))
+    .then(books => {
+      // Préparer le protocole (pour les img)
+      const protocol = req.protocol
+      const host = req.get('host')
+
+      // On map tous les livres pour update leur imageUrl avec le nom de domaine actuel
+      const modifiedBooks = books.map(book => {
+        const bookObject = book.toObject()
+        bookObject.imageUrl = `${protocol}://${host}${book.imageUrl}`
+        return bookObject
+      })
+
+      res.status(200).json(modifiedBooks)
+    })  
     .catch((err) => res.status(400).json({err}))
 }
 
@@ -37,14 +50,14 @@ exports.addBook = (req, res) => {
   const userRating = bookObject.ratings.find(rating => rating.userId === req.auth.userId)
   const userRatingGrade = userRating.grade
   
-  
+
   // On prépare l'objet (moongoose)
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
     imageUrl: req.newFilename ? `/images/${req.newFilename}` : '',
     averageRating: userRatingGrade
-  });
+  })
 
   // On envoie le livre à la db
   book.save()
