@@ -84,7 +84,10 @@ exports.addBook = (req, res) => {
 // PUT : Modifier un livre
 exports.updateBook = (req, res) => {
   console.log('updateBook controller called')
-  const bookObject = req.file ? {         // Si y a un fichier, on ajoute le fichier au reste du body (d'abord parse, puis on met imageUrl)   
+  console.log('BODY', req.body)
+  console.log('NEW FILENAME', req.newFilename)
+  console.log('FILE:', req.file)
+  let bookObject = req.file ? {         // Si y a un fichier, on ajoute le fichier au reste du body (d'abord parse, puis on met imageUrl)   
     ...JSON.parse(req.body.book),
     imageUrl: `/images/${req.newFilename}`
   } : {...req.body}                    // Sinon, on reprends le body, tel quel
@@ -96,13 +99,19 @@ exports.updateBook = (req, res) => {
       if (book.userId != req.auth.userId) {      // Check que l'ID dans le token de l'user soit bien l'ID de l'item qu'on s'apprête à update
         res.status(403).json({message: 'Non autorisé'}) 
         } else {
-        bookObject = book.ratings // On restaure le ratings original, pour pas que l'user force un nouvel array de ratings
+        bookObject.ratings = book.ratings // On restaure le ratings original, pour pas que l'user force un nouvel array de ratings
         Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
           .then(() => res.status(200).json({message:'Modification réussie'}))
-          .catch((err) => res.status(400).json({err}))
+          .catch((err) => {
+            console.error(err)
+            res.status(400).json({err})
+            })
       }
     })
-    .catch((err) => res.status(400).json({err}))
+    .catch((err) => {
+      console.log(err)
+      res.status(400).json({err})
+    })
 }
 
 
