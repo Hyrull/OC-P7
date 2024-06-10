@@ -46,13 +46,13 @@ exports.getOneBook = (req, res) => {
 
 // POST : Ajouter un livre
 exports.addBook = (req, res) => {
-  const bookObject = JSON.parse(req.body.book);
-  delete bookObject._id;
+  const bookObject = JSON.parse(req.body.book)
+  delete bookObject._id
   
   // On vire l'userId (pour reprendre celui du token après), averageRating s'il est forcé par l'user, 
-  delete bookObject._userId;
+  delete bookObject.userId
   // et on vire tout rating qui n'est pas provenant du userId (pour ne pas push une array si forcé par l'user)
-  bookObject.ratings = bookObject.ratings.filter(rating => rating.userId === req.auth.userId);
+  bookObject.ratings = bookObject.ratings.filter(rating => rating.userId === req.auth.userId)
 
   // On récupère ce rating pour lui devenir la moyenne vu que c'est la seule rating
   const userRating = bookObject.ratings.find(rating => rating.userId === req.auth.userId)
@@ -91,7 +91,7 @@ exports.updateBook = (req, res) => {
     ...JSON.parse(req.body.book),
     imageUrl: `/images/${req.newFilename}`
   } : {...req.body}                    // Sinon, on reprends le body, tel quel
-  delete bookObject._userId           // On enlève le _userId de la requête, pour pas qu'il soit changé, par sécurité
+  delete bookObject.userId           // On enlève le userId de la requête, pour pas qu'il soit changé, par sécurité
   delete bookObject.averageRating // Same pour l'averageRating
 
   Book.findOne({_id: req.params.id})
