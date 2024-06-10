@@ -29,7 +29,15 @@ exports.getOneBook = (req, res) => {
       if (!book) {
         res.status(404).json({message: 'Book not found!'})
       } else {
-        res.status(200).json(book)
+        // On choppe le current URL pour l'imageUrl
+        const protocol = req.protocol
+        const host = req.get('host')
+
+        // Update de imageUrl
+        const bookObject = book.toObject()
+        bookObject.imageUrl = `${protocol}://${host}${book.imageUrl}`
+        
+        res.status(200).json(bookObject)
       }
     })
     .catch((err) => res.status(400).json({err}))
@@ -78,7 +86,7 @@ exports.updateBook = (req, res) => {
   console.log('updateBook controller called')
   const bookObject = req.file ? {         // Si y a un fichier, on ajoute le fichier au reste du body (d'abord parse, puis on met imageUrl)   
     ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.newFilename}`
+    imageUrl: `/images/${req.newFilename}`
   } : {...req.body}                    // Sinon, on reprends le body, tel quel
   delete bookObject._userId           // On enlève le _userId de la requête, pour pas qu'il soit changé, par sécurité
   delete bookObject.averageRating // Same pour l'averageRating
@@ -146,8 +154,14 @@ exports.rateBook = (req, res) => {
     }
 
     book.save()
-      .then(() => {
-       res.status(200).json( book )
+      .then(savedBook => {
+        // Current URL pour l'imageUrl
+        const protocol = req.protocol
+        const host = req.get('host')
+        const bookObject = savedBook.toObject()
+        bookObject.imageUrl = `${protocol}://${host}${savedBook.imageUrl}`
+
+       res.status(200).json( bookObject )
        })
       .catch(err => res.status(400).json({ error: 'Failed to save rating', details: err }))
   })
@@ -159,6 +173,17 @@ exports.bestRatings = (req, res) => {
   Book.find()
   .sort({averageRating: -1})
   .limit(3)
-  .then(bestRating => res.status(200).json(bestRating))
+  .then(bestRating => {
+    // Current URL pour l'imageUrl
+    const protocol = req.protocol
+    const host = req.get('host')
+    const modifiedBest = bestRating.map(book => {
+      const bookObject = book.toObject()
+      bookObject.imageUrl = `${protocol}://${host}${book.imageUrl}`
+      return bookObject
+    })
+
+    res.status(200).json(modifiedBest)
+  })
   .catch(err => res.status(400).json({ err }))
 }
