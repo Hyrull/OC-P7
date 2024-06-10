@@ -4,10 +4,9 @@ const User = require('../models/user')
 
 exports.signup = (req, res) => {
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/
-  if (!passwordRegex.test(password)) {
+  if (!passwordRegex.test(req.body.password)) {
     return res.status(400).json({ message: 'Le mot de passe doit faire au moins six caractères, dont au moins une majuscule et un chiffre.' })
     }
-    
     // Hashing
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
