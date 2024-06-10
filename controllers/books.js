@@ -27,25 +27,34 @@ exports.getOneBook = (req, res) => {
 exports.addBook = (req, res) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
-
+  
   // On vire l'userId (pour reprendre celui du token après), averageRating s'il est forcé par l'user, 
   delete bookObject._userId;
-  delete bookObject.averageRating;
   // et on vire tout rating qui n'est pas provenant du userId (pour ne pas push une array si forcé par l'user)
   bookObject.ratings = bookObject.ratings.filter(rating => rating.userId === req.auth.userId);
 
-
+  // On récupère ce rating pour lui devenir la moyenne vu que c'est la seule rating
+  const userRating = bookObject.ratings.find(rating => rating.userId === req.auth.userId)
+  const userRatingGrade = userRating.grade
+  
+  
   // On prépare l'objet (moongoose)
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
-    imageUrl: req.newFilename ? `/images/${req.newFilename}` : ''
+    imageUrl: req.newFilename ? `/images/${req.newFilename}` : '',
+    averageRating: userRatingGrade
   });
 
   // On envoie le livre à la db
   book.save()
-    .then(() => res.status(201).json({ message: 'Livre ajouté avec succès !' }))
-    .catch(err => res.status(400).json({ err }));
+    .then(() => {
+      res.status(201).json({ message: 'Livre ajouté avec succès !' })
+    })
+    .catch(err => {
+      console.error('Error dans addBook;', err)
+      res.status(400).json({ err });
+    })
 }
 
 
